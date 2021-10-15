@@ -10,5 +10,5 @@
 
 
 ### Reference
-https://theaisummer.com/gnn-architectures/
+https://theaisummer.com/gnn-architectures/ <br>
 https://stellargraph.readthedocs.io/en/stable/demos/node-classification/gcn-node-classification.html
