@@ -7,3 +7,7 @@
   - Food discovery with Uber Eats: Using Graph Learning to Power Recommendations https://eng.uber.com/uber-eats-graph-learning/
   
 ### 9.2 Heterogeneous Graphs and Knowledge Graph Embeddedings
+
+
+### Reference
+https://theaisummer.com/gnn-architectures/
