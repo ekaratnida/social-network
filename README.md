@@ -11,4 +11,5 @@
 
 ### Reference
 https://theaisummer.com/gnn-architectures/ <br>
-https://stellargraph.readthedocs.io/en/stable/demos/node-classification/gcn-node-classification.html
+https://stellargraph.readthedocs.io/en/stable/demos/node-classification/gcn-node-classification.html <br>
+https://zqfang.github.io/2021-08-12-graph-linkpredict/
