@@ -8,9 +8,23 @@
   
 ### 9.2 Heterogeneous Graphs and Knowledge Graph Embeddedings
 
-
 ### Reference
 https://theaisummer.com/gnn-architectures/ <br>
 https://stellargraph.readthedocs.io/en/stable/demos/node-classification/gcn-node-classification.html <br>
 https://zqfang.github.io/2021-08-12-graph-linkpredict/
 https://github.com/luciusssss/CS224W-Colab
+
+## Week10
+
+## Week11
+- Assign quiz1
+
+## Week12
+
+## Week13
+- Present quiz1
+
+## Week14
+
+## Week15
+- Present project
