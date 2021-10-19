@@ -17,6 +17,7 @@ https://github.com/luciusssss/CS224W-Colab
 ## Week10
 https://stellargraph.readthedocs.io/en/v1.0.0rc1/README.html
 https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/basics/loading-pandas.ipynb#scrollTo=Vxq5HkHt2wuK
+https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/node-classification/rgcn-node-classification.ipynb#scrollTo=kymxlqfi9hFg
 https://linqs.soe.ucsc.edu/data
 
 ## Week11
