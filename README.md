@@ -15,6 +15,7 @@ https://zqfang.github.io/2021-08-12-graph-linkpredict/
 https://github.com/luciusssss/CS224W-Colab
 
 ## Week10
+https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/basics/loading-pandas.ipynb#scrollTo=Vxq5HkHt2wuK
 
 ## Week11
 - Assign quiz1
