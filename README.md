@@ -13,6 +13,7 @@ https://theaisummer.com/gnn-architectures/ <br>
 https://stellargraph.readthedocs.io/en/stable/demos/node-classification/gcn-node-classification.html <br>
 https://zqfang.github.io/2021-08-12-graph-linkpredict/
 https://github.com/luciusssss/CS224W-Colab
+https://www.kaggle.com/csanhueza/the-marvel-universe-social-network
 
 ## Week10
 https://stellargraph.readthedocs.io/en/v1.0.0rc1/README.html
