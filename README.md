@@ -42,3 +42,6 @@ https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/d
 
 ## Week15
 - Present project
+
+## Ref
+node2vec: https://www.kaggle.com/ferdzso/knowledge-graph-analysis-with-node2vec
