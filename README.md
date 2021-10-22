@@ -21,6 +21,11 @@ https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/d
 https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/node-classification/rgcn-node-classification.ipynb#scrollTo=kymxlqfi9hFg
 https://linqs.soe.ucsc.edu/data
 
+GCN Node classification <br>
+https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/node-classification/gcn-node-classification.ipynb#scrollTo=NyNefsCD_Mfe <br><br>
+Heterogeneous link prediction <br>
+https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/link-prediction/hinsage-link-prediction.ipynb#scrollTo=AgyiC9Fs8G0S
+
 ## Week11
 - Assign quiz1
 
