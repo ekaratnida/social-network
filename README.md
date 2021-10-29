@@ -43,6 +43,7 @@ Gephi
 - https://mdl.library.utoronto.ca/technology/tutorials/visualizing-network-dataset-using-gephi#DownloadtheTutorialDataset
 
 AmpliGraph
+- Why it fails?
 - https://github.com/Accenture/AmpliGraph/blob/master/docs/tutorials/AmpliGraphBasicsTutorial.ipynb
 - https://github.com/Accenture/AmpliGraph/blob/master/docs/tutorials/ClusteringAndClassificationWithEmbeddings.ipynb
 
