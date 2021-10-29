@@ -35,7 +35,16 @@ However, RGCNs are different from traditional link predictors, such as TransE an
 ```
 
 ## Week11
-- Assign quiz1
+Pykeen
+- https://raw.githubusercontent.com/ZhenfengLei/KGDatasets/master/Nations/test.txt
+- https://colab.research.google.com/github/ekaratnida/Applied-machine-learning/blob/master/Pykeen.ipynb?authuser=2#scrollTo=rDs_cGUIPdA6&uniqifier=1
+
+Gephi
+- https://mdl.library.utoronto.ca/technology/tutorials/visualizing-network-dataset-using-gephi#DownloadtheTutorialDataset
+
+AmpliGraph
+- https://github.com/Accenture/AmpliGraph/blob/master/docs/tutorials/AmpliGraphBasicsTutorial.ipynb
+- https://github.com/Accenture/AmpliGraph/blob/master/docs/tutorials/ClusteringAndClassificationWithEmbeddings.ipynb
 
 ## Week12
 
