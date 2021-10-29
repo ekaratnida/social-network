@@ -30,6 +30,10 @@ https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/d
 Heterogeneous link prediction <br>
 https://colab.research.google.com/github/stellargraph/stellargraph/blob/master/demos/link-prediction/hinsage-link-prediction.ipynb#scrollTo=AgyiC9Fs8G0S
 
+```
+However, RGCNs are different from traditional link predictors, such as TransE and DistMult, becauseRGCNs explicitly uses nodes’ neighborhood information for learning vector representations for downstreamtasks 
+```
+
 ## Week11
 - Assign quiz1
 
