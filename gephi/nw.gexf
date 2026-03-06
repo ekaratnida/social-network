@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.2draft" version="1.2">
+  <graph mode="static" defaultedgetype="directed">
+    
+    <nodes>
+      <node id="1" label="Alice">
+        <attvalues>
+          <attvalue for="Department" value="Marketing"/>
+          <attvalue for="Role" value="Lead"/>
+        </attvalues>
+      </node>
+      <node id="2" label="Bob">
+        <attvalues>
+          <attvalue for="Department" value="Sales"/>
+          <attvalue for="Role" value="Associate"/>
+        </attvalues>
+      </node>
+      <node id="3" label="Charlie">
+        <attvalues>
+          <attvalue for="Department" value="IT"/>
+          <attvalue for="Role" value="Developer"/>
+        </attvalues>
+      </node>
+      <node id="4" label="David">
+        <attvalues>
+          <attvalue for="Department" value="Marketing"/>
+          <attvalue for="Role" value="Creative"/>
+        </attvalues>
+      </node>
+      <node id="5" label="Eve">
+        <attvalues>
+          <attvalue for="Department" value="Sales"/>
+          <attvalue for="Role" value="Coordinator"/>
+        </attvalues>
+      </node>
+    </nodes>
+
+    <edges>
+      <edge id="e0" source="1" target="2" weight="1" />
+      <edge id="e1" source="1" target="3" weight="1" />
+      <edge id="e2" source="2" target="5" weight="1" />
+      <edge id="e3" source="3" target="4" weight="1" />
+      <edge id="e4" source="4" target="1" weight="1" />
+    </edges>
+    
+  </graph>
+</gexf>
