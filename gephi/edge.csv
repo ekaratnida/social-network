@@ -1,0 +1,13 @@
+Source, Target, Type, Id, Label, Weight
+1,9,Directed,e0,like,1
+2,9,Directed,e1,like,1
+3,9,Directed,e2,like,1
+3,10,Directed,e3,like,1
+4,10,Directed,e4,like,1
+5,9,Directed,e5,like,1
+5,10,Directed,e6,like,1
+6,9,Directed,e7,like,1
+6,10,Directed,e8,like,1
+7,10,Directed,e9,like,1
+8,9,Directed,e10,like,1
+8,10,Directed,e11,like,1
