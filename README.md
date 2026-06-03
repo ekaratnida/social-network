@@ -59,3 +59,6 @@ AmpliGraph
 
 ## Ref
 node2vec: https://www.kaggle.com/ferdzso/knowledge-graph-analysis-with-node2vec
+
+## App
+Supabase: https://supabase.com/dashboard/project/cvmeosuwuvieongbydmh
