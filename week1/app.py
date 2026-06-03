@@ -39,6 +39,23 @@ def ensure_tables():
 
 ensure_tables()
 
+@st.cache_data(ttl=10, show_spinner=False)
+def fetch_people():
+    return supabase.table("people").select("*").order("name").execute().data
+
+@st.cache_data(ttl=10, show_spinner=False)
+def fetch_edges():
+    return supabase.table("edges").select("*").execute().data
+
+@st.cache_data(ttl=10, show_spinner=False)
+def fetch_names():
+    data = supabase.table("people").select("name").order("name").execute().data
+    return [r["name"] for r in data]
+
+def mutate():
+    st.cache_data.clear()
+    st.rerun()
+
 with st.form("add_person"):
     name = st.text_input("Name").strip()
     hobby = st.text_input("Hobby")
@@ -51,11 +68,10 @@ with st.form("add_person"):
             supabase.table("people").insert(
                 {"name": name, "hobby": hobby, "age": age}
             ).execute()
-            st.rerun()
+            mutate()
 
 with st.form("add_edge"):
-    names_result = supabase.table("people").select("name").order("name").execute()
-    names = [r["name"] for r in names_result.data]
+    names = fetch_names()
     if names:
         a, b = st.selectbox("Person A", names), st.selectbox("Person B", names)
         rel = st.text_input("Relation (e.g. friend)")
@@ -63,12 +79,10 @@ with st.form("add_edge"):
             supabase.table("edges").insert(
                 {"person_a": a, "person_b": b, "relation": rel}
             ).execute()
-            st.rerun()
+            mutate()
 
-people_result = supabase.table("people").select("*").execute()
-edges_result = supabase.table("edges").select("*").execute()
-people = people_result.data
-edges = edges_result.data
+people = fetch_people()
+edges = fetch_edges()
 
 if people:
     G = nx.Graph()
@@ -89,8 +103,7 @@ if people:
 st.divider()
 st.subheader("Manage People")
 
-names_result = supabase.table("people").select("name").order("name").execute()
-all_names = [r["name"] for r in names_result.data]
+all_names = fetch_names()
 
 col1, col2 = st.columns(2)
 
@@ -107,7 +120,7 @@ with col1:
                 supabase.table("people").update(
                     {"hobby": new_hobby, "age": new_age}
                 ).eq("name", sel).execute()
-                st.rerun()
+                mutate()
 
 with col2:
     st.markdown("**Delete Person**")
@@ -118,13 +131,12 @@ with col2:
                 f"person_a.eq.{del_sel},person_b.eq.{del_sel}"
             ).execute()
             supabase.table("people").delete().eq("name", del_sel).execute()
-            st.rerun()
+            mutate()
 
 st.divider()
 st.subheader("Manage Edges")
 
-edges_result = supabase.table("edges").select("*").execute()
-edge_list = edges_result.data
+edge_list = fetch_edges()
 
 col3, col4 = st.columns(2)
 
@@ -142,7 +154,7 @@ with col3:
             supabase.table("edges").update(
                 {"relation": new_rel}
             ).eq("id", sel_edge["id"]).execute()
-            st.rerun()
+            mutate()
 
 with col4:
     st.markdown("**Delete Edge**")
@@ -151,7 +163,7 @@ with col4:
         del_edge = edge_list[del_edge_idx]
         if st.button("Delete Edge"):
             supabase.table("edges").delete().eq("id", del_edge["id"]).execute()
-            st.rerun()
+            mutate()
 
 with st.expander("People Data"):
     st.write(people)
