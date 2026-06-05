@@ -56,24 +56,29 @@ def mutate():
 def add_audience_page():
     ensure_tables()
     st.title("Add Audience")
-    with st.form("add_person"):
+
+    col_left, col_right = st.columns([3, 1])
+    with col_left:
         name = st.text_input("Name").strip()
-        hobby = st.text_input("Hobby")
-        age = st.number_input("Age", 1, 120, 25)
-        if st.form_submit_button("Add") and name:
-            existing = supabase.table("people").select("name").eq("name", name).execute()
-            if existing.data:
-                st.error("Name already exists.")
-            else:
-                supabase.table("people").insert(
-                    {"name": name, "hobby": hobby, "age": age}
-                ).execute()
-                mutate()
+    with col_right:
+        st.markdown("###")
+        if st.button("Clear All Data"):
+            supabase.table("edges").delete().neq("id", 0).execute()
+            supabase.table("people").delete().neq("id", 0).execute()
+            mutate()
+
+    if st.button("Add") and name:
+        existing = supabase.table("people").select("name").eq("name", name).execute()
+        if existing.data:
+            st.error("Name already exists.")
+        else:
+            supabase.table("people").insert({"name": name}).execute()
+            mutate()
 
     people = fetch_people()
     if people:
         st.subheader("Existing Audience")
-        st.table([{"Name": p["name"], "Hobby": p.get("hobby"), "Age": p.get("age")} for p in people])
+        st.table([{"Name": p["name"]} for p in people])
 
 def network_page():
     ensure_tables()
