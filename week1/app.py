@@ -3,7 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from supabase import create_client
 
-st.set_page_config(page_title="Audience Network", layout="wide")
+st.set_page_config(page_title="User Network", layout="wide")
 
 st.markdown("""
 <style>
@@ -98,7 +98,7 @@ def add_audience_page():
 
     people = fetch_people()
     if people:
-        st.subheader("Existing Audience")
+        st.subheader("Existing Users")
         st.table([{"Name": p["name"]} for p in people])
 
         st.divider()
@@ -112,7 +112,7 @@ def preferences_page():
     st.title("Preferences")
 
     if "current_user" not in st.session_state:
-        st.warning("No user selected. Go to Add Audience page and select a user first.")
+        st.warning("No user selected. Go to Add User Name page and select a user first.")
         return
 
     user = st.session_state.current_user
@@ -164,7 +164,7 @@ def network_page():
     edges = fetch_edges()
 
     if not people:
-        st.info("No audience data yet.")
+        st.info("No users yet.")
         return
 
     fav_map = {}
