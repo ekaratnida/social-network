@@ -18,7 +18,6 @@ qr = qrcode.make("https://dads-survey.streamlit.app/")
 buf = BytesIO()
 qr.save(buf, format="PNG")
 st.sidebar.image(buf.getvalue(), caption="Scan for DADS Survey", width=150)
-st.sidebar.markdown("[Open DADS Survey](https://dads-survey.streamlit.app/)")
 
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
