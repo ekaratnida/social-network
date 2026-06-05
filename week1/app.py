@@ -72,13 +72,14 @@ def add_audience_page():
     with col_left:
         name = st.text_input("Name").strip()
     with col_right:
-        st.markdown("###")
-        if st.button("Clear All Data"):
-            supabase.table("favorites").delete().neq("id", 0).execute()
-            supabase.table("edges").delete().neq("id", 0).execute()
-            supabase.table("people").delete().neq("id", 0).execute()
-            st.session_state.pop("current_user", None)
-            mutate()
+        if st.session_state.get("current_user") == "Ekarat":
+            st.markdown("###")
+            if st.button("Clear All Data"):
+                supabase.table("favorites").delete().neq("id", 0).execute()
+                supabase.table("edges").delete().neq("id", 0).execute()
+                supabase.table("people").delete().neq("id", 0).execute()
+                st.session_state.pop("current_user", None)
+                mutate()
 
     if st.button("Add") and name:
         existing = supabase.table("people").select("name").eq("name", name).execute()
@@ -133,19 +134,31 @@ def preferences_page():
         other_names = [n for n in fetch_names() if n != user]
         selected_known = st.multiselect("", other_names, default=current_known)
 
-    if st.button("Save"):
-        supabase.table("favorites").delete().eq("person_name", user).execute()
-        if selected_food:
-            supabase.table("favorites").insert(
-                {"person_name": user, "food": selected_food}
-            ).execute()
+    col_save, col_delete = st.columns([1, 1])
+    with col_save:
+        if st.button("Save"):
+            supabase.table("favorites").delete().eq("person_name", user).execute()
+            if selected_food:
+                supabase.table("favorites").insert(
+                    {"person_name": user, "food": selected_food}
+                ).execute()
 
-        supabase.table("edges").delete().eq("person_a", user).eq("relation", "knows").execute()
-        if selected_known:
-            supabase.table("edges").insert(
-                [{"person_a": user, "person_b": p, "relation": "knows"} for p in selected_known]
+            supabase.table("edges").delete().eq("person_a", user).eq("relation", "knows").execute()
+            if selected_known:
+                supabase.table("edges").insert(
+                    [{"person_a": user, "person_b": p, "relation": "knows"} for p in selected_known]
+                ).execute()
+            mutate()
+
+    with col_delete:
+        if st.button("Delete Me"):
+            supabase.table("favorites").delete().eq("person_name", user).execute()
+            supabase.table("edges").delete().or_(
+                f"person_a.eq.{user},person_b.eq.{user}"
             ).execute()
-        mutate()
+            supabase.table("people").delete().eq("name", user).execute()
+            st.session_state.pop("current_user", None)
+            mutate()
 
 def network_page():
     ensure_tables()
@@ -164,27 +177,23 @@ def network_page():
         fav_map.setdefault(f["person_name"], set()).add(f["food"])
 
     G = nx.Graph()
-    for p in people:
-        foods = ", ".join(sorted(fav_map.get(p["name"], set()))) or "none"
-        G.add_node(p["name"], foods=foods)
-
-    names_list = [p["name"] for p in people]
-    for i in range(len(names_list)):
-        for j in range(i + 1, len(names_list)):
-            shared = fav_map.get(names_list[i], set()) & fav_map.get(names_list[j], set())
-            if shared:
-                G.add_edge(names_list[i], names_list[j], label=", ".join(sorted(shared)))
-
+    for name in fetch_names():
+        G.add_node(name, kind="person")
+    for food in FOODS:
+        G.add_node(food, kind="food")
+    for f in favorites:
+        G.add_edge(f["person_name"], f["food"], label="likes")
     for e in edges:
-        if G.has_edge(e["person_a"], e["person_b"]):
-            G[e["person_a"]][e["person_b"]]["label"] += f", {e['relation']}"
-        else:
-            G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
+        G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
     fig, ax = plt.subplots(figsize=(10, 8))
     pos = nx.spring_layout(G, k=0.5, seed=42)
-    nx.draw(G, pos, with_labels=True, node_color="skyblue",
-            node_size=600, edge_color="gray", ax=ax)
+    person_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "person"]
+    food_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "food"]
+    nx.draw_networkx_nodes(G, pos, nodelist=person_nodes, node_color="skyblue", node_size=600, ax=ax)
+    nx.draw_networkx_nodes(G, pos, nodelist=food_nodes, node_color="lightgreen", node_size=600, ax=ax)
+    nx.draw_networkx_labels(G, pos, ax=ax)
+    nx.draw_networkx_edges(G, pos, edge_color="gray", ax=ax)
     edge_labels = {(u, v): d["label"] for u, v, d in G.edges(data=True)}
     if edge_labels:
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
