@@ -5,6 +5,13 @@ from supabase import create_client
 
 st.set_page_config(page_title="Audience Network", layout="wide")
 
+st.markdown("""
+<style>
+table { border-collapse: collapse; }
+td, th { border: 1px solid #ddd !important; padding: 8px; }
+</style>
+""", unsafe_allow_html=True)
+
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
     st.secrets["SUPABASE_KEY"]
@@ -66,7 +73,7 @@ def mutate():
 
 def add_audience_page():
     ensure_tables()
-    st.title("Add Audience")
+    st.title("Add User Name")
 
     col_left, col_right = st.columns([3, 1])
     with col_left:
@@ -194,7 +201,7 @@ def network_page():
         st.write("Edges", edges)
 
 pg = st.navigation([
-    st.Page(add_audience_page, title="Add Audience"),
+    st.Page(add_audience_page, title="Add User Name"),
     st.Page(preferences_page, title="Preferences"),
     st.Page(network_page, title="Network Visualizer"),
 ])
