@@ -202,8 +202,8 @@ def network_page():
         st.write("Edges", edges)
 
 pg = st.navigation([
-    st.Page(add_audience_page, title="Add User Name"),
-    st.Page(preferences_page, title="Preferences"),
-    st.Page(network_page, title="Network Visualizer"),
+    st.Page(add_audience_page, title="1. Add User Name"),
+    st.Page(preferences_page, title="2. Preferences"),
+    st.Page(network_page, title="3. Network Visualizer"),
 ])
 pg.run()
