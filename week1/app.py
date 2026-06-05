@@ -134,31 +134,19 @@ def preferences_page():
         other_names = [n for n in fetch_names() if n != user]
         selected_known = st.multiselect("", other_names, default=current_known)
 
-    col_save, col_delete = st.columns([1, 1])
-    with col_save:
-        if st.button("Save"):
-            supabase.table("favorites").delete().eq("person_name", user).execute()
-            if selected_food:
-                supabase.table("favorites").insert(
-                    {"person_name": user, "food": selected_food}
-                ).execute()
-
-            supabase.table("edges").delete().eq("person_a", user).eq("relation", "knows").execute()
-            if selected_known:
-                supabase.table("edges").insert(
-                    [{"person_a": user, "person_b": p, "relation": "knows"} for p in selected_known]
-                ).execute()
-            mutate()
-
-    with col_delete:
-        if st.button("Delete Me"):
-            supabase.table("favorites").delete().eq("person_name", user).execute()
-            supabase.table("edges").delete().or_(
-                f"person_a.eq.{user},person_b.eq.{user}"
+    if st.button("Save"):
+        supabase.table("favorites").delete().eq("person_name", user).execute()
+        if selected_food:
+            supabase.table("favorites").insert(
+                {"person_name": user, "food": selected_food}
             ).execute()
-            supabase.table("people").delete().eq("name", user).execute()
-            st.session_state.pop("current_user", None)
-            mutate()
+
+        supabase.table("edges").delete().eq("person_a", user).eq("relation", "knows").execute()
+        if selected_known:
+            supabase.table("edges").insert(
+                [{"person_a": user, "person_b": p, "relation": "knows"} for p in selected_known]
+            ).execute()
+        mutate()
 
 def network_page():
     ensure_tables()
