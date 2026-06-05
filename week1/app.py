@@ -73,6 +73,7 @@ def mutate():
 
 def add_audience_page():
     ensure_tables()
+    st.markdown("# Social Network and Media Analysis")
     st.title("Add User Name")
 
     col_left, col_right = st.columns([3, 1])
