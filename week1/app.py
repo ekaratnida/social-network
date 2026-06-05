@@ -21,9 +21,7 @@ def ensure_tables():
             "```sql\n"
             "CREATE TABLE people (\n"
             "  id BIGSERIAL PRIMARY KEY,\n"
-            "  name TEXT NOT NULL UNIQUE,\n"
-            "  hobby TEXT,\n"
-            "  age INTEGER\n"
+            "  name TEXT NOT NULL UNIQUE\n"
             ");\n\n"
             "CREATE TABLE edges (\n"
             "  id BIGSERIAL PRIMARY KEY,\n"
@@ -42,6 +40,8 @@ def ensure_tables():
             "```"
         )
         st.stop()
+
+FOODS = ["Chicken Rice", "Somtum", "Noodle", "Mooping"]
 
 @st.cache_data(ttl=10, show_spinner=False)
 def fetch_people():
@@ -77,6 +77,7 @@ def add_audience_page():
             supabase.table("favorites").delete().neq("id", 0).execute()
             supabase.table("edges").delete().neq("id", 0).execute()
             supabase.table("people").delete().neq("id", 0).execute()
+            st.session_state.pop("current_user", None)
             mutate()
 
     if st.button("Add") and name:
@@ -92,60 +93,112 @@ def add_audience_page():
         st.subheader("Existing Audience")
         st.table([{"Name": p["name"]} for p in people])
 
-FOODS = ["Chicken Rice", "Somtum", "Noodle", "Mooping"]
+        st.divider()
+        sel = st.selectbox("Select a user to set preferences", [p["name"] for p in people])
+        if st.button("Confirm User"):
+            st.session_state.current_user = sel
+            st.success(f"Selected: {sel}. Go to Preferences page.")
+
+def preferences_page():
+    ensure_tables()
+    st.title("Preferences")
+
+    if "current_user" not in st.session_state:
+        st.warning("No user selected. Go to Add Audience page and select a user first.")
+        return
+
+    user = st.session_state.current_user
+
+    favs = supabase.table("favorites").select("food").eq("person_name", user).execute()
+    current_foods = [r["food"] for r in favs.data]
+
+    known = supabase.table("edges").select("person_b").eq("person_a", user).eq("relation", "knows").execute()
+    current_known = [r["person_b"] for r in known.data]
+
+    r1c1, r1c2, r1c3 = st.columns(3)
+    with r1c1:
+        st.markdown(f"**{user}**")
+    with r1c2:
+        st.markdown("**likes**")
+    with r1c3:
+        idx = FOODS.index(current_foods[0]) if current_foods else None
+        selected_food = st.radio("", FOODS, index=idx)
+
+    r2c1, r2c2, r2c3 = st.columns(3)
+    with r2c1:
+        st.markdown(f"**{user}**")
+    with r2c2:
+        st.markdown("**knows**")
+    with r2c3:
+        other_names = [n for n in fetch_names() if n != user]
+        selected_known = st.multiselect("", other_names, default=current_known)
+
+    if st.button("Save"):
+        supabase.table("favorites").delete().eq("person_name", user).execute()
+        if selected_food:
+            supabase.table("favorites").insert(
+                {"person_name": user, "food": selected_food}
+            ).execute()
+
+        supabase.table("edges").delete().eq("person_a", user).eq("relation", "knows").execute()
+        if selected_known:
+            supabase.table("edges").insert(
+                [{"person_a": user, "person_b": p, "relation": "knows"} for p in selected_known]
+            ).execute()
+        mutate()
 
 def network_page():
     ensure_tables()
     st.title("Network Visualizer")
 
-    names = fetch_names()
-    if names:
-        sel = st.selectbox("Select person", names)
-        favs = supabase.table("favorites").select("food").eq("person_name", sel).execute()
-        current_foods = [r["food"] for r in favs.data]
-        selected = st.multiselect("Favorite foods", FOODS, default=current_foods)
-        if st.button("Save"):
-            supabase.table("favorites").delete().eq("person_name", sel).execute()
-            if selected:
-                supabase.table("favorites").insert(
-                    [{"person_name": sel, "food": f} for f in selected]
-                ).execute()
-            mutate()
-
     people = fetch_people()
     favorites = fetch_favorites()
+    edges = fetch_edges()
+
+    if not people:
+        st.info("No audience data yet.")
+        return
 
     fav_map = {}
     for f in favorites:
         fav_map.setdefault(f["person_name"], set()).add(f["food"])
 
-    if people:
-        G = nx.Graph()
-        for p in people:
-            foods = ", ".join(sorted(fav_map.get(p["name"], set()))) or "none"
-            G.add_node(p["name"], foods=foods)
-        names_list = [p["name"] for p in people]
-        for i in range(len(names_list)):
-            for j in range(i + 1, len(names_list)):
-                shared = fav_map.get(names_list[i], set()) & fav_map.get(names_list[j], set())
-                if shared:
-                    G.add_edge(names_list[i], names_list[j], shared=", ".join(sorted(shared)))
+    G = nx.Graph()
+    for p in people:
+        foods = ", ".join(sorted(fav_map.get(p["name"], set()))) or "none"
+        G.add_node(p["name"], foods=foods)
 
-        fig, ax = plt.subplots(figsize=(10, 8))
-        pos = nx.spring_layout(G, k=0.5, seed=42)
-        nx.draw(G, pos, with_labels=True, node_color="skyblue",
-                node_size=600, edge_color="gray", ax=ax)
-        shared_labels = {(u, v): d["shared"] for u, v, d in G.edges(data=True)}
-        if shared_labels:
-            nx.draw_networkx_edge_labels(G, pos, edge_labels=shared_labels, ax=ax)
-        ax.axis("off")
-        st.pyplot(fig)
+    names_list = [p["name"] for p in people]
+    for i in range(len(names_list)):
+        for j in range(i + 1, len(names_list)):
+            shared = fav_map.get(names_list[i], set()) & fav_map.get(names_list[j], set())
+            if shared:
+                G.add_edge(names_list[i], names_list[j], label=", ".join(sorted(shared)))
 
-    with st.expander("Favorite Foods Data"):
-        st.write(favorites)
+    for e in edges:
+        if G.has_edge(e["person_a"], e["person_b"]):
+            G[e["person_a"]][e["person_b"]]["label"] += f", {e['relation']}"
+        else:
+            G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    pos = nx.spring_layout(G, k=0.5, seed=42)
+    nx.draw(G, pos, with_labels=True, node_color="skyblue",
+            node_size=600, edge_color="gray", ax=ax)
+    edge_labels = {(u, v): d["label"] for u, v, d in G.edges(data=True)}
+    if edge_labels:
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
+    ax.axis("off")
+    st.pyplot(fig)
+
+    with st.expander("Raw Data"):
+        st.write("People", people)
+        st.write("Favorites", favorites)
+        st.write("Edges", edges)
 
 pg = st.navigation([
     st.Page(add_audience_page, title="Add Audience"),
+    st.Page(preferences_page, title="Preferences"),
     st.Page(network_page, title="Network Visualizer"),
 ])
 pg.run()
