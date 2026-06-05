@@ -1,6 +1,8 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
+import qrcode
+from io import BytesIO
 from supabase import create_client
 
 st.set_page_config(page_title="User Network", layout="wide")
@@ -11,6 +13,12 @@ table { border-collapse: collapse; }
 td, th { border: 1px solid #ddd !important; padding: 8px; }
 </style>
 """, unsafe_allow_html=True)
+
+qr = qrcode.make("https://dads-survey.streamlit.app/")
+buf = BytesIO()
+qr.save(buf, format="PNG")
+st.sidebar.image(buf.getvalue(), caption="Scan for DADS Survey", width=150)
+st.sidebar.markdown("[Open DADS Survey](https://dads-survey.streamlit.app/)")
 
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
