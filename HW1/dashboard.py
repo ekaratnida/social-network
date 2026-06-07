@@ -100,8 +100,9 @@ try:
             st.subheader("All SET50 Stocks")
             st.dataframe(df.reset_index(drop=True), width="stretch", hide_index=True)
 
+            df["color"] = df["Change%"].apply(lambda x: "green" if x >= 0 else "red")
             fig2 = px.pie(df, names="Symbol", values="Change%", title="SET50 Performance (%)",
-                          color="Change%", color_continuous_scale="RdYlGn", height=400)
+                          color="color", color_discrete_map={"green": "#2ca02c", "red": "#d62728"}, height=400)
             fig2.update_traces(textposition="inside", textinfo="percent+label")
             st.plotly_chart(fig2, width="stretch")
     else:
