@@ -189,18 +189,28 @@ def network_page():
     for e in edges:
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    pos = nx.spring_layout(G, k=0.5, seed=42)
+    fig, ax = plt.subplots(figsize=(14, 10))
+    pos = nx.kamada_kawai_layout(G)
     person_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "person"]
     food_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "food"]
-    nx.draw_networkx_nodes(G, pos, nodelist=person_nodes, node_color="skyblue", node_size=600, ax=ax)
-    nx.draw_networkx_nodes(G, pos, nodelist=food_nodes, node_color="lightgreen", node_size=600, ax=ax)
-    nx.draw_networkx_labels(G, pos, ax=ax)
-    nx.draw_networkx_edges(G, pos, edge_color="gray", ax=ax)
+    nx.draw_networkx_nodes(G, pos, nodelist=person_nodes, node_color="skyblue",
+                           node_size=800, edgecolors="navy", linewidths=2, ax=ax)
+    nx.draw_networkx_nodes(G, pos, nodelist=food_nodes, node_color="lightgreen",
+                           node_size=500, edgecolors="darkgreen", linewidths=2, ax=ax)
+    nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold", ax=ax)
+    nx.draw_networkx_edges(G, pos, edge_color="gray", alpha=0.6, width=1.5,
+                           connectionstyle="arc3,rad=0.1", ax=ax)
     edge_labels = {(u, v): d["label"] for u, v, d in G.edges(data=True)}
     if edge_labels:
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels,
+                                     font_size=9, label_pos=0.3, ax=ax)
     ax.axis("off")
+    ax.legend(handles=[
+        plt.Line2D([], [], marker="o", color="w", markerfacecolor="skyblue",
+                   markeredgecolor="navy", markersize=12, label="Person"),
+        plt.Line2D([], [], marker="o", color="w", markerfacecolor="lightgreen",
+                   markeredgecolor="darkgreen", markersize=12, label="Food"),
+    ], loc="upper right", fontsize=10)
     st.pyplot(fig)
 
     with st.expander("Raw Data"):
