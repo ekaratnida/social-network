@@ -1,9 +1,11 @@
+import asyncio
 import streamlit as st
 import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
+from settfex.services.set import get_shareholder_data
 
 st.set_page_config(page_title="SET50 Dashboard", layout="wide")
 st.title("📈 SET50 Thailand Dashboard")
@@ -113,14 +115,20 @@ except Exception as e:
 st.subheader("Top 5 Stakeholders")
 selected = st.selectbox("Select a company", options=list(SET50_SYMBOLS.keys()), format_func=lambda s: f"{s} - {SET50_SYMBOLS[s]}")
 try:
-    ticker = yf.Ticker(selected + suffix)
-    holders = ticker.institutional_holders
-    if holders is not None and not holders.empty:
-        top5 = holders.head(5)[["Holder", "% Out", "Value"]].copy()
-        top5["% Out"] = top5["% Out"].apply(lambda x: f"{x:.2f}%")
-        top5["Value"] = top5["Value"].apply(lambda x: f"${x:,.0f}")
-        st.dataframe(top5.reset_index(drop=True), width="stretch", hide_index=True)
+    data = asyncio.run(get_shareholder_data(selected))
+    if data and data.major_shareholders:
+        rows = []
+        for s in data.major_shareholders[:5]:
+            rows.append({
+                "Rank": s.sequence,
+                "Name": s.name,
+                "Nationality": s.nationality,
+                "Shares": f"{s.number_of_share:,}",
+                "% Ownership": f"{s.percent_of_share:.2f}%",
+            })
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+        st.caption(f"Total shareholders: {data.total_shareholder:,} | Free float: {data.free_float.percent_free_float:.2f}%" if data.free_float else "")
     else:
-        st.info("No institutional holder data available.")
+        st.info("No shareholder data available.")
 except Exception as e:
     st.error(f"Could not fetch stakeholders: {e}")
