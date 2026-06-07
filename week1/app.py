@@ -1,8 +1,6 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
-import qrcode
-from io import BytesIO
 from supabase import create_client
 
 st.set_page_config(page_title="User Network", layout="wide")
@@ -14,10 +12,8 @@ td, th { border: 1px solid #ddd !important; padding: 8px; }
 </style>
 """, unsafe_allow_html=True)
 
-qr = qrcode.make("https://dads-survey.streamlit.app/")
-buf = BytesIO()
-qr.save(buf, format="PNG")
-st.sidebar.image(buf.getvalue(), caption="Scan for DADS Survey", width=150)
+st.sidebar.markdown("### DADS Survey")
+st.sidebar.markdown("[dads-survey.streamlit.app](https://dads-survey.streamlit.app/)")
 
 supabase = create_client(
     st.secrets["SUPABASE_URL"],
@@ -190,7 +186,7 @@ def network_page():
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
     fig, ax = plt.subplots(figsize=(14, 10))
-    pos = nx.kamada_kawai_layout(G)
+    pos = nx.spring_layout(G, k=0.5, seed=42)
     person_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "person"]
     food_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "food"]
     nx.draw_networkx_nodes(G, pos, nodelist=person_nodes, node_color="skyblue",
