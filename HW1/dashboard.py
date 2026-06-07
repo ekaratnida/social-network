@@ -100,9 +100,9 @@ try:
             st.subheader("All SET50 Stocks")
             st.dataframe(df.reset_index(drop=True), width="stretch", hide_index=True)
 
-            fig2 = px.bar(df, x="Symbol", y="Change%", title="SET50 Performance (%)",
+            fig2 = px.pie(df, names="Symbol", values="Change%", title="SET50 Performance (%)",
                           color="Change%", color_continuous_scale="RdYlGn", height=400)
-            fig2.update_layout(xaxis_tickangle=-45)
+            fig2.update_traces(textposition="inside", textinfo="percent+label")
             st.plotly_chart(fig2, width="stretch")
     else:
         st.warning("No stock data available.")
