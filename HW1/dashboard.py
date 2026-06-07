@@ -109,3 +109,18 @@ try:
         st.warning("No stock data available.")
 except Exception as e:
     st.error(f"Could not fetch stock data: {e}")
+
+st.subheader("Top 5 Stakeholders")
+selected = st.selectbox("Select a company", options=list(SET50_SYMBOLS.keys()), format_func=lambda s: f"{s} - {SET50_SYMBOLS[s]}")
+try:
+    ticker = yf.Ticker(selected + suffix)
+    holders = ticker.institutional_holders
+    if holders is not None and not holders.empty:
+        top5 = holders.head(5)[["Holder", "% Out", "Value"]].copy()
+        top5["% Out"] = top5["% Out"].apply(lambda x: f"{x:.2f}%")
+        top5["Value"] = top5["Value"].apply(lambda x: f"${x:,.0f}")
+        st.dataframe(top5.reset_index(drop=True), width="stretch", hide_index=True)
+    else:
+        st.info("No institutional holder data available.")
+except Exception as e:
+    st.error(f"Could not fetch stakeholders: {e}")
