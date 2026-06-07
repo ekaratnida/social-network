@@ -55,7 +55,7 @@ def ensure_tables():
         )
         st.stop()
 
-FOODS = ["Chicken Rice", "Somtum", "Noodle", "Mooping"]
+FOODS = ["Chicken Rice", "Somtum", "Noodle", "Mooping", "Pizza"]
 
 @st.cache_data(ttl=10, show_spinner=False)
 def fetch_people():
