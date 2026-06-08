@@ -199,7 +199,21 @@ def network_page():
 
     is_basic = centrality_option == "Basic Stats"
 
-    pos = nx.spring_layout(G, k=2.5, seed=42)
+    layout_option = st.sidebar.selectbox(
+        "Layout", ["Spring", "Circular", "Shell", "Kamada Kawai", "Spiral"],
+        key="layout"
+    )
+    person_names = fetch_names()
+    if layout_option == "Spring":
+        pos = nx.spring_layout(G, k=2.5, seed=42)
+    elif layout_option == "Circular":
+        pos = nx.circular_layout(G)
+    elif layout_option == "Shell":
+        pos = nx.shell_layout(G, nlist=[[n for n in person_names if n in G], [f for f in FOODS if f in G]])
+    elif layout_option == "Kamada Kawai":
+        pos = nx.kamada_kawai_layout(G)
+    elif layout_option == "Spiral":
+        pos = nx.spiral_layout(G)
     scale = 250
     vis_nodes = []
     vis_edges = []
@@ -242,8 +256,8 @@ def network_page():
     <head>
       <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
       <style>
-        body {{ margin: 0; overflow: hidden; }}
-        #network {{ width: 100vw; height: 100vh; background-color: #FFFF00; }}
+        body, html {{ margin: 0; overflow: hidden; height: 100%; }}
+        #network {{ width: 100%; height: 100%; background-color: #FFFF00; }}
       </style>
     </head>
     <body>
@@ -257,7 +271,6 @@ def network_page():
           physics: false,
           interaction: {{ dragNodes: true, dragView: true, zoomView: true, hover: true }},
           edges: {{ smooth: false }},
-          height: '100%',
           backgroundColor: {{ background: '#FFFF00' }},
         }};
         var network = new vis.Network(container, data, options);
@@ -269,7 +282,7 @@ def network_page():
     </body>
     </html>
     """
-    st.components.v1.html(html, height=700)
+    st.components.v1.html(html, height=450)
 
     if is_basic:
         try:
