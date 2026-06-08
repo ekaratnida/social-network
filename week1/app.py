@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 import streamlit as st
 import networkx as nx
 from supabase import create_client
@@ -182,7 +183,7 @@ def network_page():
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
     centrality_option = st.sidebar.selectbox(
-        "Centrality Measure", ["Basic Stats", "Degree Centrality", "Closeness Centrality"],
+        "Centrality Measure", ["Basic Stats", "Degree Centrality", "Closeness Centrality", "Centrality Table"],
         key="centrality"
     )
 
@@ -194,6 +195,10 @@ def network_page():
         highlight_nodes = [n for n, _ in sorted_nodes[:5]]
     elif centrality_option == "Closeness Centrality":
         cent = nx.closeness_centrality(G)
+        sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
+        highlight_nodes = [n for n, _ in sorted_nodes[:5]]
+    elif centrality_option == "Centrality Table":
+        cent = nx.degree_centrality(G)
         sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
         highlight_nodes = [n for n, _ in sorted_nodes[:5]]
 
@@ -291,6 +296,21 @@ def network_page():
         cols[0].metric("Nodes", G.number_of_nodes())
         cols[1].metric("Edges", G.number_of_edges())
         cols[2].metric("Diameter", diameter)
+    elif centrality_option == "Centrality Table":
+        deg_cen = nx.degree_centrality(G)
+        clo_cen = nx.closeness_centrality(G)
+        bet_cen = nx.betweenness_centrality(G)
+        eig_cen = nx.eigenvector_centrality(G, max_iter=1000)
+        kat_cen = nx.katz_centrality(G, alpha=0.1, beta=1.0)
+        df = pd.DataFrame({
+            "Node": list(G.nodes()),
+            "Degree": [deg_cen[n] for n in G.nodes()],
+            "Closeness": [clo_cen[n] for n in G.nodes()],
+            "Betweenness": [bet_cen[n] for n in G.nodes()],
+            "Eigenvector": [eig_cen[n] for n in G.nodes()],
+            "Katz": [kat_cen[n] for n in G.nodes()],
+        }).sort_values("Degree", ascending=False).reset_index(drop=True)
+        st.dataframe(df, use_container_width=True)
     else:
         st.subheader(f"Top 3 by {centrality_option}")
         for rank, (node, score) in enumerate(sorted_nodes[:3], 1):
