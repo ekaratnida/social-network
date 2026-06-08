@@ -1,6 +1,6 @@
 import streamlit as st
 import networkx as nx
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from supabase import create_client
 
 st.set_page_config(page_title="User Network", layout="wide")
@@ -185,29 +185,70 @@ def network_page():
     for e in edges:
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
-    fig, ax = plt.subplots(figsize=(14, 10))
     pos = nx.spring_layout(G, k=0.5, seed=42)
+    pos_x = {n: p[0] for n, p in pos.items()}
+    pos_y = {n: p[1] for n, p in pos.items()}
+
     person_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "person"]
     food_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "food"]
-    nx.draw_networkx_nodes(G, pos, nodelist=person_nodes, node_color="skyblue",
-                           node_size=800, edgecolors="navy", linewidths=2, ax=ax)
-    nx.draw_networkx_nodes(G, pos, nodelist=food_nodes, node_color="lightgreen",
-                           node_size=500, edgecolors="darkgreen", linewidths=2, ax=ax)
-    nx.draw_networkx_labels(G, pos, font_size=10, font_weight="bold", ax=ax)
-    nx.draw_networkx_edges(G, pos, edge_color="gray", alpha=0.6, width=1.5,
-                           connectionstyle="arc3,rad=0.1", ax=ax)
-    edge_labels = {(u, v): d["label"] for u, v, d in G.edges(data=True)}
-    if edge_labels:
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels,
-                                     font_size=9, label_pos=0.3, ax=ax)
-    ax.axis("off")
-    ax.legend(handles=[
-        plt.Line2D([], [], marker="o", color="w", markerfacecolor="skyblue",
-                   markeredgecolor="navy", markersize=12, label="Person"),
-        plt.Line2D([], [], marker="o", color="w", markerfacecolor="lightgreen",
-                   markeredgecolor="darkgreen", markersize=12, label="Food"),
-    ], loc="upper right", fontsize=10)
-    st.pyplot(fig)
+
+    edge_traces = []
+    for u, v, d in G.edges(data=True):
+        x0, y0 = pos_x[u], pos_y[u]
+        x1, y1 = pos_x[v], pos_y[v]
+        edge_traces.append(go.Scatter(
+            x=[x0, x1, None], y=[y0, y1, None],
+            mode="lines",
+            line=dict(color="gray", width=1.5),
+            hoverinfo="none",
+            showlegend=False,
+        ))
+
+    person_trace = go.Scatter(
+        x=[pos_x[n] for n in person_nodes],
+        y=[pos_y[n] for n in person_nodes],
+        mode="markers+text",
+        text=person_nodes,
+        textposition="top center",
+        marker=dict(size=18, color="skyblue", line=dict(color="navy", width=2)),
+        name="Person",
+    )
+
+    food_trace = go.Scatter(
+        x=[pos_x[n] for n in food_nodes],
+        y=[pos_y[n] for n in food_nodes],
+        mode="markers+text",
+        text=food_nodes,
+        textposition="top center",
+        marker=dict(size=14, color="lightgreen", line=dict(color="darkgreen", width=2)),
+        name="Food",
+    )
+
+    edge_label_annotations = []
+    for u, v, d in G.edges(data=True):
+        edge_label_annotations.append(dict(
+            x=(pos_x[u] + pos_x[v]) / 2,
+            y=(pos_y[u] + pos_y[v]) / 2,
+            text=d["label"],
+            showarrow=False,
+            font=dict(size=11, color="#444"),
+            bgcolor="rgba(255,255,255,0.7)",
+        ))
+
+    fig = go.Figure(data=edge_traces + [person_trace, food_trace])
+    fig.update_layout(
+        title="Network Graph",
+        title_x=0.5,
+        showlegend=True,
+        hovermode="closest",
+        width=1000,
+        height=700,
+        xaxis=dict(showgrid=False, zeroline=False, visible=False),
+        yaxis=dict(showgrid=False, zeroline=False, visible=False),
+        plot_bgcolor="white",
+        annotations=edge_label_annotations,
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("Raw Data"):
         st.write("People", people)
