@@ -182,7 +182,7 @@ def network_page():
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
     centrality_option = st.sidebar.selectbox(
-        "Centrality Measure", ["None", "Degree Centrality", "Closeness Centrality"],
+        "Centrality Measure", ["Basic Stats", "Degree Centrality", "Closeness Centrality"],
         key="centrality"
     )
 
@@ -197,13 +197,15 @@ def network_page():
         sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
         highlight_nodes = [n for n, _ in sorted_nodes[:5]]
 
+    is_basic = centrality_option == "Basic Stats"
+
     pos = nx.spring_layout(G, k=2.5, seed=42)
     scale = 250
     vis_nodes = []
     vis_edges = []
     for n, d in G.nodes(data=True):
         kind = d.get("kind", "person")
-        has_cent = centrality_option != "None"
+        has_cent = not is_basic
         is_highlighted = n in highlight_nodes
         score = cent.get(n, 0) if has_cent else None
         label = f"{n}\n{score:.3f}" if score is not None else n
@@ -269,7 +271,16 @@ def network_page():
     """
     st.components.v1.html(html, height=700)
 
-    if centrality_option != "None":
+    if is_basic:
+        try:
+            diameter = nx.diameter(G)
+        except nx.NetworkXError:
+            diameter = "N/A (disconnected)"
+        cols = st.columns(3)
+        cols[0].metric("Nodes", G.number_of_nodes())
+        cols[1].metric("Edges", G.number_of_edges())
+        cols[2].metric("Diameter", diameter)
+    else:
         st.subheader(f"Top 3 by {centrality_option}")
         for rank, (node, score) in enumerate(sorted_nodes[:3], 1):
             st.write(f"{rank}. **{node}** — {score:.4f}")
