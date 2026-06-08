@@ -226,7 +226,7 @@ def network_page():
           interaction: {{ dragNodes: true, dragView: true, zoomView: true, hover: true }},
           edges: {{ smooth: {{ type: 'curvedCW', roundness: 0.1 }} }},
           height: '100%',
-          backgroundColor: { background: '#FFFF00' },
+          backgroundColor: {{ background: '#FFFF00' }},
         }};
         var network = new vis.Network(container, data, options);
       </script>
