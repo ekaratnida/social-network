@@ -10,6 +10,8 @@ st.markdown("""
 <style>
 table { border-collapse: collapse; }
 td, th { border: 1px solid #ddd !important; padding: 8px; }
+.block-container { padding-top: 1.5rem !important; }
+h1, h2, h3 { margin-top: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
