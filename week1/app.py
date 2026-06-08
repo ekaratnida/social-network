@@ -182,7 +182,7 @@ def network_page():
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
     centrality_option = st.sidebar.selectbox(
-        "Centrality Measure", ["None", "Degree Centrality"],
+        "Centrality Measure", ["None", "Degree Centrality", "Closeness Centrality"],
         key="centrality"
     )
 
@@ -190,6 +190,10 @@ def network_page():
     highlight_nodes = []
     if centrality_option == "Degree Centrality":
         cent = nx.degree_centrality(G)
+        sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
+        highlight_nodes = [n for n, _ in sorted_nodes[:5]]
+    elif centrality_option == "Closeness Centrality":
+        cent = nx.closeness_centrality(G)
         sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
         highlight_nodes = [n for n, _ in sorted_nodes[:5]]
 
@@ -264,6 +268,10 @@ def network_page():
     </html>
     """
     st.components.v1.html(html, height=700)
+
+    if centrality_option != "None":
+        top_node, top_score = sorted_nodes[0]
+        st.metric(f"Top by {centrality_option}", top_node, f"{top_score:.4f}")
 
     with st.expander("Raw Data"):
         st.write("People", people)
