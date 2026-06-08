@@ -193,6 +193,8 @@ def network_page():
         sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
         highlight_nodes = [n for n, _ in sorted_nodes[:5]]
 
+    pos = nx.spring_layout(G, k=2.5, seed=42)
+    scale = 250
     vis_nodes = []
     vis_edges = []
     for n, d in G.nodes(data=True):
@@ -208,6 +210,8 @@ def network_page():
             "label": label,
             "color": {"background": bg, "border": border},
             "shape": "ellipse",
+            "x": pos[n][0] * scale,
+            "y": pos[n][1] * scale,
             "size": 30 if kind == "person" else 20,
             "font": {"size": 13, "color": "#111", "bold": True, "face": "Arial", "align": "center"},
             "opacity": 1.0 if not has_cent or is_highlighted else 0.2,
@@ -224,7 +228,7 @@ def network_page():
             "color": "gray",
             "width": 2,
             "font": {"size": 13, "color": "#222", "strokeWidth": 3, "strokeColor": "white", "bold": True},
-            "smooth": {"type": "curvedCW", "roundness": 0.1},
+            "smooth": False,
         })
 
     html = f"""
@@ -244,9 +248,9 @@ def network_page():
         var container = document.getElementById('network');
         var data = {{ nodes: nodes, edges: edges }};
         var options = {{
-          physics: {{ solver: 'forceAtlas2Based', stabilization: {{ iterations: 100 }} }},
+          physics: false,
           interaction: {{ dragNodes: true, dragView: true, zoomView: true, hover: true }},
-          edges: {{ smooth: {{ type: 'curvedCW', roundness: 0.1 }} }},
+          edges: {{ smooth: false }},
           height: '100%',
           backgroundColor: {{ background: '#FFFF00' }},
         }};
