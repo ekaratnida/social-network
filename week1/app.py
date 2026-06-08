@@ -186,6 +186,7 @@ def network_page():
         key="centrality"
     )
 
+    cent = {}
     highlight_nodes = []
     if centrality_option == "Degree Centrality":
         cent = nx.degree_centrality(G)
@@ -196,17 +197,22 @@ def network_page():
     vis_edges = []
     for n, d in G.nodes(data=True):
         kind = d.get("kind", "person")
+        has_cent = centrality_option != "None"
+        is_highlighted = n in highlight_nodes
+        score = cent.get(n, 0) if has_cent else None
+        label = f"{n}\n{score:.3f}" if score is not None else n
+        bg = "skyblue" if kind == "person" else "lightgreen"
+        border = "red" if is_highlighted else ("navy" if kind == "person" else "darkgreen")
         node = {
             "id": n,
-            "label": n,
-            "color": {"background": "skyblue", "border": "navy"} if kind == "person"
-                      else {"background": "lightgreen", "border": "darkgreen"},
-            "shape": "dot",
+            "label": label,
+            "color": {"background": bg, "border": border},
+            "shape": "ellipse",
             "size": 30 if kind == "person" else 20,
-            "font": {"size": 16, "color": "#111", "bold": True, "face": "Arial"},
+            "font": {"size": 13, "color": "#111", "bold": True, "face": "Arial", "align": "center"},
+            "opacity": 1.0 if not has_cent or is_highlighted else 0.2,
         }
-        if n in highlight_nodes:
-            node["color"]["border"] = "red"
+        if is_highlighted:
             node["borderWidth"] = 4
             node["size"] += 10
         vis_nodes.append(node)
