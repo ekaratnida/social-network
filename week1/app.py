@@ -1,6 +1,6 @@
+import json
 import streamlit as st
 import networkx as nx
-import plotly.graph_objects as go
 from supabase import create_client
 
 st.set_page_config(page_title="User Network", layout="wide")
@@ -171,10 +171,6 @@ def network_page():
         st.info("No users yet.")
         return
 
-    fav_map = {}
-    for f in favorites:
-        fav_map.setdefault(f["person_name"], set()).add(f["food"])
-
     G = nx.Graph()
     for name in fetch_names():
         G.add_node(name, kind="person")
@@ -185,70 +181,58 @@ def network_page():
     for e in edges:
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
-    pos = nx.spring_layout(G, k=0.5, seed=42)
-    pos_x = {n: p[0] for n, p in pos.items()}
-    pos_y = {n: p[1] for n, p in pos.items()}
-
-    person_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "person"]
-    food_nodes = [n for n, d in G.nodes(data=True) if d.get("kind") == "food"]
-
-    edge_traces = []
+    vis_nodes = []
+    vis_edges = []
+    for n, d in G.nodes(data=True):
+        kind = d.get("kind", "person")
+        vis_nodes.append({
+            "id": n,
+            "label": n,
+            "color": {"background": "skyblue", "border": "navy"} if kind == "person"
+                      else {"background": "lightgreen", "border": "darkgreen"},
+            "shape": "dot",
+            "size": 30 if kind == "person" else 20,
+            "font": {"size": 14, "bold": True},
+        })
     for u, v, d in G.edges(data=True):
-        x0, y0 = pos_x[u], pos_y[u]
-        x1, y1 = pos_x[v], pos_y[v]
-        edge_traces.append(go.Scatter(
-            x=[x0, x1, None], y=[y0, y1, None],
-            mode="lines",
-            line=dict(color="gray", width=1.5),
-            hoverinfo="none",
-            showlegend=False,
-        ))
+        vis_edges.append({
+            "from": u,
+            "to": v,
+            "label": d.get("label", ""),
+            "color": "gray",
+            "width": 2,
+            "font": {"size": 12, "color": "#444", "strokeWidth": 3, "strokeColor": "white"},
+            "smooth": {"type": "curvedCW", "roundness": 0.1},
+        })
 
-    person_trace = go.Scatter(
-        x=[pos_x[n] for n in person_nodes],
-        y=[pos_y[n] for n in person_nodes],
-        mode="markers+text",
-        text=person_nodes,
-        textposition="top center",
-        marker=dict(size=18, color="skyblue", line=dict(color="navy", width=2)),
-        name="Person",
-    )
-
-    food_trace = go.Scatter(
-        x=[pos_x[n] for n in food_nodes],
-        y=[pos_y[n] for n in food_nodes],
-        mode="markers+text",
-        text=food_nodes,
-        textposition="top center",
-        marker=dict(size=14, color="lightgreen", line=dict(color="darkgreen", width=2)),
-        name="Food",
-    )
-
-    edge_label_annotations = []
-    for u, v, d in G.edges(data=True):
-        edge_label_annotations.append(dict(
-            x=(pos_x[u] + pos_x[v]) / 2,
-            y=(pos_y[u] + pos_y[v]) / 2,
-            text=d["label"],
-            showarrow=False,
-            font=dict(size=11, color="#444"),
-            bgcolor="rgba(255,255,255,0.7)",
-        ))
-
-    fig = go.Figure(data=edge_traces + [person_trace, food_trace])
-    fig.update_layout(
-        title="Network Graph",
-        title_x=0.5,
-        showlegend=True,
-        hovermode="closest",
-        width=1000,
-        height=700,
-        xaxis=dict(showgrid=False, zeroline=False, visible=False),
-        yaxis=dict(showgrid=False, zeroline=False, visible=False),
-        plot_bgcolor="white",
-        annotations=edge_label_annotations,
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    html = f"""
+    <html>
+    <head>
+      <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+      <style>
+        body {{ margin: 0; overflow: hidden; }}
+        #network {{ width: 100vw; height: 100vh; }}
+      </style>
+    </head>
+    <body>
+      <div id="network"></div>
+      <script>
+        var nodes = new vis.DataSet({json.dumps(vis_nodes)});
+        var edges = new vis.DataSet({json.dumps(vis_edges)});
+        var container = document.getElementById('network');
+        var data = {{ nodes: nodes, edges: edges }};
+        var options = {{
+          physics: {{ solver: 'forceAtlas2Based', stabilization: {{ iterations: 100 }} }},
+          interaction: {{ dragNodes: true, dragView: true, zoomView: true, hover: true }},
+          edges: {{ smooth: {{ type: 'curvedCW', roundness: 0.1 }} }},
+          height: '100%',
+        }};
+        var network = new vis.Network(container, data, options);
+      </script>
+    </body>
+    </html>
+    """
+    st.components.v1.html(html, height=700)
 
     with st.expander("Raw Data"):
         st.write("People", people)
