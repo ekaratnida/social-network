@@ -200,7 +200,7 @@ def network_page():
     is_basic = centrality_option == "Basic Stats"
 
     layout_option = st.sidebar.selectbox(
-        "Layout", ["Spring", "Circular", "Shell", "Kamada Kawai", "Spiral"],
+        "Layout", ["Spring", "Circular", "Shell", "Spiral"],
         key="layout"
     )
     person_names = fetch_names()
@@ -210,12 +210,6 @@ def network_page():
         pos = nx.circular_layout(G)
     elif layout_option == "Shell":
         pos = nx.shell_layout(G, nlist=[[n for n in person_names if n in G], [f for f in FOODS if f in G]])
-    elif layout_option == "Kamada Kawai":
-        try:
-            pos = nx.kamada_kawai_layout(G)
-        except nx.NetworkXError:
-            st.sidebar.warning("Kamada Kawai requires a connected graph. Falling back to Spring.")
-            pos = nx.spring_layout(G, k=2.5, seed=42)
     elif layout_option == "Spiral":
         pos = nx.spiral_layout(G)
     scale = 250
