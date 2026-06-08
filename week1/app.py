@@ -211,7 +211,7 @@ def network_page():
       <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
       <style>
         body {{ margin: 0; overflow: hidden; }}
-        #network {{ width: 100vw; height: 100vh; }}
+        #network {{ width: 100vw; height: 100vh; background-color: #FFFF00; }}
       </style>
     </head>
     <body>
@@ -226,6 +226,7 @@ def network_page():
           interaction: {{ dragNodes: true, dragView: true, zoomView: true, hover: true }},
           edges: {{ smooth: {{ type: 'curvedCW', roundness: 0.1 }} }},
           height: '100%',
+          backgroundColor: { background: '#FFFF00' },
         }};
         var network = new vis.Network(container, data, options);
       </script>
