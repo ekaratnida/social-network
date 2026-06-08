@@ -181,11 +181,22 @@ def network_page():
     for e in edges:
         G.add_edge(e["person_a"], e["person_b"], label=e["relation"])
 
+    centrality_option = st.sidebar.selectbox(
+        "Centrality Measure", ["None", "Degree Centrality"],
+        key="centrality"
+    )
+
+    highlight_nodes = []
+    if centrality_option == "Degree Centrality":
+        cent = nx.degree_centrality(G)
+        sorted_nodes = sorted(cent.items(), key=lambda x: x[1], reverse=True)
+        highlight_nodes = [n for n, _ in sorted_nodes[:5]]
+
     vis_nodes = []
     vis_edges = []
     for n, d in G.nodes(data=True):
         kind = d.get("kind", "person")
-        vis_nodes.append({
+        node = {
             "id": n,
             "label": n,
             "color": {"background": "skyblue", "border": "navy"} if kind == "person"
@@ -193,7 +204,12 @@ def network_page():
             "shape": "dot",
             "size": 30 if kind == "person" else 20,
             "font": {"size": 16, "color": "#111", "bold": True, "face": "Arial"},
-        })
+        }
+        if n in highlight_nodes:
+            node["color"]["border"] = "red"
+            node["borderWidth"] = 4
+            node["size"] += 10
+        vis_nodes.append(node)
     for u, v, d in G.edges(data=True):
         vis_edges.append({
             "from": u,
@@ -229,6 +245,10 @@ def network_page():
           backgroundColor: {{ background: '#FFFF00' }},
         }};
         var network = new vis.Network(container, data, options);
+        var highlightNodes = {json.dumps(highlight_nodes)};
+        if (highlightNodes.length > 0) {{
+          network.selectNodes(highlightNodes);
+        }}
       </script>
     </body>
     </html>
