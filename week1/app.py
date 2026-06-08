@@ -192,7 +192,7 @@ def network_page():
                       else {"background": "lightgreen", "border": "darkgreen"},
             "shape": "dot",
             "size": 30 if kind == "person" else 20,
-            "font": {"size": 14, "bold": True},
+            "font": {"size": 16, "color": "#111", "bold": True, "face": "Arial"},
         })
     for u, v, d in G.edges(data=True):
         vis_edges.append({
@@ -201,7 +201,7 @@ def network_page():
             "label": d.get("label", ""),
             "color": "gray",
             "width": 2,
-            "font": {"size": 12, "color": "#444", "strokeWidth": 3, "strokeColor": "white"},
+            "font": {"size": 13, "color": "#222", "strokeWidth": 3, "strokeColor": "white", "bold": True},
             "smooth": {"type": "curvedCW", "roundness": 0.1},
         })
 
