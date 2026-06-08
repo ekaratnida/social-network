@@ -270,8 +270,9 @@ def network_page():
     st.components.v1.html(html, height=700)
 
     if centrality_option != "None":
-        top_node, top_score = sorted_nodes[0]
-        st.metric(f"Top by {centrality_option}", top_node, f"{top_score:.4f}")
+        st.subheader(f"Top 3 by {centrality_option}")
+        for rank, (node, score) in enumerate(sorted_nodes[:3], 1):
+            st.write(f"{rank}. **{node}** — {score:.4f}")
 
     with st.expander("Raw Data"):
         st.write("People", people)
