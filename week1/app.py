@@ -304,6 +304,7 @@ def network_page():
         bet_cen = nx.betweenness_centrality(G)
         eig_cen = nx.eigenvector_centrality(G, max_iter=1000)
         kat_cen = nx.katz_centrality(G, alpha=0.1, beta=1.0)
+        pr_cen = nx.pagerank(G)
         df = pd.DataFrame({
             "Node": list(G.nodes()),
             "Degree": [deg_cen[n] for n in G.nodes()],
@@ -311,6 +312,7 @@ def network_page():
             "Betweenness": [bet_cen[n] for n in G.nodes()],
             "Eigenvector": [eig_cen[n] for n in G.nodes()],
             "Katz": [kat_cen[n] for n in G.nodes()],
+            "PageRank": [pr_cen[n] for n in G.nodes()],
         }).sort_values("Degree", ascending=False).reset_index(drop=True)
         st.dataframe(df, use_container_width=True)
     else:

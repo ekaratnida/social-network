@@ -1,5 +1,6 @@
 streamlit
 networkx
 pandas
+scipy
 supabase
 pytest

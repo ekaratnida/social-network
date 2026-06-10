@@ -157,12 +157,14 @@ class TestCentralityTable:
         bet = nx.betweenness_centrality(G)
         eig = nx.eigenvector_centrality(G, max_iter=1000)
         kat = nx.katz_centrality(G, alpha=0.1, beta=1.0)
+        pr = nx.pagerank(G)
         for n in G.nodes():
             assert n in deg
             assert n in clo
             assert n in bet
             assert n in eig
             assert n in kat
+            assert n in pr
 
     def test_centrality_values_in_range(self):
         G = build_graph(["Alice", "Bob"], [{"person_name": "Alice", "food": "Somtum"}], [])
