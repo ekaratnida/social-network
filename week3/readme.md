@@ -64,10 +64,10 @@ ORDER BY score DESC;
 ```
 
 ## 12) Review centrality
-12) centrality https://neo4j.com/docs/graph-data-science/current/algorithms/centrality/
+- centrality https://neo4j.com/docs/graph-data-science/current/algorithms/centrality/
 
 ## 13) Community detection
-13) community https://neo4j.com/docs/graph-data-science/current/algorithms/community/
+- community https://neo4j.com/docs/graph-data-science/current/algorithms/community/
 
 Necessary cmd
 docker ps -a
