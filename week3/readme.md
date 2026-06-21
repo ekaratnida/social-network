@@ -70,7 +70,10 @@ ORDER BY score DESC;
 - community https://neo4j.com/docs/graph-data-science/current/algorithms/community/
 
 Necessary cmd
+
 docker ps -a
+
 docker rm -f container name
+
 docker volume rm container name
 
